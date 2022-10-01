@@ -1,0 +1,68 @@
+{
+  "bindings": {
+    "/actions/default": {
+      "chords": [],
+      "poses": [
+        {
+          "output": "/actions/default/in/pose",
+          "path": "/user/hand/left/pose/raw"
+        },
+        {
+          "output": "/actions/default/in/pose",
+          "path": "/user/hand/right/pose/raw"
+        }
+      ],
+      "skeleton": [
+        {
+          "output": "/actions/default/in/SkeletonLeftHand",
+          "path": "/user/hand/left/input/skeleton/left"
+        },
+        {
+          "output": "/actions/default/in/SkeletonRightHand",
+          "path": "/user/hand/right/input/skeleton/right"
+        }
+      ],
+      "sources": [
+        {
+          "inputs": {
+            "pull": {
+              "output": "/actions/default/in/FingerCurlIndex"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/finger/index"
+        },
+        {
+          "inputs": {
+            "pull": {
+              "output": "/actions/default/in/FingerCurlMiddle"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/finger/middle"
+        },
+        {
+          "inputs": {
+            "pull": {
+              "output": "/actions/default/in/FingerCurlRing"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/finger/ring"
+        },
+        {
+          "inputs": {
+            "pull": {
+              "output": "/actions/default/in/FingerCurlPinky"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/finger/pinky"
+        }
+      ]
+    }
+  },
+  "controller_type": "knuckles",
+  "description": "My Test Bindings",
+  "name": "OpenVRSandbox test bindings"
+}

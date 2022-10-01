@@ -1,0 +1,16 @@
+{
+	"source" : "builtin",
+	"applications": [{
+		"app_key": "system.generated.xrdoctor.exe",
+		"launch_type": "binary",
+		"binary_path_windows": "XRDoctor.exe",
+		"is_dashboard_overlay": true,
+		"action_manifest_path": "./actions.json",
+
+		"strings": {
+			"en_us": {
+				"name": "XR Doctor SteamVR Test"
+			}
+		}
+	}]
+}

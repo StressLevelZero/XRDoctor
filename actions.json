@@ -1,0 +1,57 @@
+{
+  "default_bindings": [
+    {
+      "controller_type": "knuckles",
+      "binding_url": "knuckles_bindings.json"
+    }],
+  "actions": [
+    {
+      "name": "/actions/default/in/empty",
+      "requirement": "optional",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/default/in/SkeletonLeftHand",
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/left"
+    },
+    {
+      "name": "/actions/default/in/SkeletonRightHand",
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/right"
+    },
+    {
+      "name" : "/actions/default/in/FingerCurlIndex",
+      "type" : "vector1"
+    },
+    {
+      "name" : "/actions/default/in/FingerCurlMiddle",
+      "type" : "vector1"
+    },
+    {
+      "name" : "/actions/default/in/FingerCurlRing",
+      "type" : "vector1"
+    },
+    {
+      "name" : "/actions/default/in/FingerCurlPinky",
+      "type" : "vector1"
+    },
+    {
+      "name": "/actions/default/in/pose",
+      "type": "pose"
+    }
+  ],
+  "action_sets": [
+    {
+      "name": "/actions/default",
+      "usage": "leftright"
+    }
+  ],
+  "localization": [
+    {
+      "language_tag": "en_US",
+      "/actions/default/in/SkeletonLeftHand": "Skeleton (Left)",
+      "/actions/default/in/SkeletonRightHand": "Skeleton (Right)"
+    }
+  ]
+}
