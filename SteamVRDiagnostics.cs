@@ -10,6 +10,7 @@ namespace SLZ.XRDoctor;
 
 public static class SteamVRDiagnostics {
     private const string RuntimeName = "SteamVR";
+
     public static void CheckDirectly(out bool hasSteamVR) {
         Log.Information("[{runtime}] Checking directly for runtime at {SteamRegistryKey}.", RuntimeName,
             @"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam");
@@ -29,6 +30,8 @@ public static class SteamVRDiagnostics {
                     break;
                 }
 
+                var folderCount = 0;
+
                 var lfStr = File.ReadAllText(lfPath);
                 var lf = VdfConvert.Deserialize(lfStr);
                 var lfJson = lf.ToJson().Value.Values();
@@ -44,8 +47,14 @@ public static class SteamVRDiagnostics {
 
                     var runtimePath = Path.Combine(path, "steamapps", "common", "SteamVR", "steamxr_win64.json");
 
+                    Log.Warning(
+                        "[{runtime}] Checking Steam install directory for Runtime JSON at path: \"{runtimePath}\".",
+                        RuntimeName,
+                        runtimePath);
+
                     if (!File.Exists(runtimePath)) {
-                        Log.Warning("[{runtime}] Runtime JSON not found at expected path \"{runtimePath}\".", RuntimeName,
+                        Log.Warning("[{runtime}] Runtime JSON not found at expected path \"{runtimePath}\".",
+                            RuntimeName,
                             runtimePath);
                         continue;
                     }
@@ -82,10 +91,8 @@ public static class SteamVRDiagnostics {
 
         var err = default(EVRInitError);
         var sys = OpenVR.Init(ref err, EVRApplicationType.VRApplication_Overlay);
-        if (err != EVRInitError.None) {
-            Log.Error("[{runtime}] Error initting {err}", RuntimeName, err);
-        }
-        
+        if (err != EVRInitError.None) { Log.Error("[{runtime}] Error initting {err}", RuntimeName, err); }
+
         var appManifestResult = OpenVR.Applications.AddApplicationManifest(appManifest, false);
         if (appManifestResult != EVRApplicationError.None) {
             Log.Error("[{runtime}] Error adding app manifest: {appManifestResult}", RuntimeName, appManifestResult);
@@ -93,48 +100,54 @@ public static class SteamVRDiagnostics {
 
         var actionManifestResult = OpenVR.Input.SetActionManifestPath(actionsJson);
         if (actionManifestResult != EVRInputError.None) {
-            Log.Error("[{runtime}] Error setting action manifest: {actionManifestResult}", RuntimeName, actionManifestResult);
+            Log.Error("[{runtime}] Error setting action manifest: {actionManifestResult}", RuntimeName,
+                actionManifestResult);
         }
-        
+
         ulong defaultActionSetHandle = 0;
         var ashResult = OpenVR.Input.GetActionSetHandle("/actions/default", ref defaultActionSetHandle);
         if (ashResult != EVRInputError.None) {
-            Log.Error("[{runtime}] Error getting action set handle for default action set: {ashResult}", RuntimeName, ashResult);
+            Log.Error("[{runtime}] Error getting action set handle for default action set: {ashResult}", RuntimeName,
+                ashResult);
         }
-        
+
         VRActiveActionSet_t lhaas = default;
         lhaas.ulActionSet = defaultActionSetHandle;
         var aas = new[] {lhaas};
 
         ETrackedPropertyError ipdError = default;
-        var ipd = OpenVR.System.GetFloatTrackedDeviceProperty(0, ETrackedDeviceProperty.Prop_UserIpdMeters_Float, ref ipdError);
-        if (ipdError == ETrackedPropertyError.TrackedProp_Success) { 
+        var ipd = OpenVR.System.GetFloatTrackedDeviceProperty(0, ETrackedDeviceProperty.Prop_UserIpdMeters_Float,
+            ref ipdError);
+        if (ipdError == ETrackedPropertyError.TrackedProp_Success) {
             Log.Information("[{runtime}] IPD: {ipd}", RuntimeName, ipd);
-        } else {
-            Log.Error("[{runtime}] Error updating IPD: {ipdError}", RuntimeName, ipdError);
-        }
-        
-        int left = -1;
-        int right = -1;
+        } else { Log.Error("[{runtime}] Error updating IPD: {ipdError}", RuntimeName, ipdError); }
+
+        var left = -1;
+        var right = -1;
 
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++) {
             var trackedDeviceClass = OpenVR.System.GetTrackedDeviceClass(i);
 
             if (trackedDeviceClass != ETrackedDeviceClass.Invalid) {
-                ETrackedPropertyError propErr = ETrackedPropertyError.TrackedProp_Success;
-                var count = OpenVR.System.GetStringTrackedDeviceProperty(i, ETrackedDeviceProperty.Prop_ModelNumber_String, null, 0, ref propErr);
-                var modelNumber = new System.Text.StringBuilder((int)count);
-                OpenVR.System.GetStringTrackedDeviceProperty(i, ETrackedDeviceProperty.Prop_ModelNumber_String, modelNumber, count, ref propErr);
-                
-                Log.Information("[{runtime}] Device {i}: modelNumber={modelNumber} class={class}", RuntimeName, i, modelNumber, trackedDeviceClass);
+                var propErr = ETrackedPropertyError.TrackedProp_Success;
+                var count = OpenVR.System.GetStringTrackedDeviceProperty(i,
+                    ETrackedDeviceProperty.Prop_ModelNumber_String, null, 0, ref propErr);
+                var modelNumber = new System.Text.StringBuilder((int) count);
+                OpenVR.System.GetStringTrackedDeviceProperty(i, ETrackedDeviceProperty.Prop_ModelNumber_String,
+                    modelNumber, count, ref propErr);
+
+                Log.Information("[{runtime}] Device {i}: modelNumber={modelNumber} class={class}", RuntimeName, i,
+                    modelNumber, trackedDeviceClass);
             }
 
             if (trackedDeviceClass == ETrackedDeviceClass.Controller) {
                 var role = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(i);
                 switch (role) {
-                    case ETrackedControllerRole.LeftHand: left = (int) i;
+                    case ETrackedControllerRole.LeftHand:
+                        left = (int) i;
                         break;
-                    case ETrackedControllerRole.RightHand: right = (int) i;
+                    case ETrackedControllerRole.RightHand:
+                        right = (int) i;
                         break;
                 }
             }

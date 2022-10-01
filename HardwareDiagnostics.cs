@@ -4,7 +4,7 @@ using Serilog;
 public static class HardwareDiagnostics {
     public static void FindHeadsets(out Dictionary<string, string> headsets) {
         headsets = new Dictionary<string, string>();
-        
+
         var mos = new ManagementObjectSearcher(null, @"SELECT * FROM Win32_PnPEntity");
         foreach (var mo in mos.Get().OfType<ManagementObject>()) {
             var args = new object[] {new string[] {"DEVPKEY_Device_BusReportedDeviceDesc"}, null};

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
-namespace SLZ.XRDoctor; 
+namespace SLZ.XRDoctor;
 
 public static class OpenXRDiagnostics {
     public static void FindActiveRuntime(out string XR_RUNTIME_JSON) {

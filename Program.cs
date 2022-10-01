@@ -1,11 +1,5 @@
-﻿using System.Management;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Figgle;
-using Gameloop.Vdf;
-using Gameloop.Vdf.JsonConverter;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog;
 using Silk.NET.OpenXR;
 using Silk.NET.OpenXR.Extensions.KHR;
@@ -21,15 +15,14 @@ const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {Message:l}{NewLin
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(outputTemplate: outputTemplate)
+    .WriteTo.File("log_.txt", outputTemplate: outputTemplate, rollingInterval: RollingInterval.Day)
     .MinimumLevel.Debug()
     .CreateLogger();
 
 OpenXRDiagnostics.FindActiveRuntime(out var XR_RUNTIME_JSON);
 if (!string.IsNullOrWhiteSpace(XR_RUNTIME_JSON)) {
     Log.Information("Active Runtime (XR_RUNTIME_JSON): {XR_RUNTIME_JSON}", XR_RUNTIME_JSON);
-} else {
-    Log.Error("Could not find an active OpenXR runtime."); 
-}
+} else { Log.Error("Could not find an active OpenXR runtime."); }
 
 OpenXRDiagnostics.FindRegisteredRuntimes(out var runtimes);
 foreach (var (runtimeName, manifest) in runtimes) {
@@ -39,11 +32,12 @@ foreach (var (runtimeName, manifest) in runtimes) {
         Log.Information("Available Runtime: \"{name}\" - {runtime} - {@manifest}", manifest.Runtime.Name,
             runtimeName,
             manifest);
-    }    
+    }
 }
 
 OculusDiagnostics.CheckDirectly(out var hasOculus);
 SteamVRDiagnostics.CheckDirectly(out var hasSteamVR);
+ViveVRDiagnostics.CheckDirectly(out var hasViveVr);
 WindowsMRDiagnostics.CheckDirectly(out var hasWindowsMR);
 
 HardwareDiagnostics.FindHeadsets(out var headsets);
@@ -53,30 +47,37 @@ if (XR_RUNTIME_JSON.Contains("Steam", StringComparison.InvariantCultureIgnoreCas
 }
 
 #region OpenXR
+
 Log.Information("Loading OpenXR.");
 var xr = XR.GetApi();
 
 unsafe {
     uint count = 0;
     xr.EnumerateApiLayerProperties(count, &count, null);
-    Span<ApiLayerProperties> layers = stackalloc ApiLayerProperties[(int)count];
-    for (var i = 0; i < count; i++) {
-        layers[i] = new ApiLayerProperties(StructureType.ApiLayerProperties);
-    }
+    Span<ApiLayerProperties> layers = stackalloc ApiLayerProperties[(int) count];
+    for (var i = 0; i < count; i++) { layers[i] = new ApiLayerProperties(StructureType.ApiLayerProperties); }
+
     xr.EnumerateApiLayerProperties(ref count, layers);
 
+    IDictionary<string, uint> supportedLayers = new Dictionary<string, uint>();
+
     foreach (var layer in layers) {
-        Log.Information("layerprop: {@layerProp}", layer);
+        string name;
+        unsafe { name = Marshal.PtrToStringUTF8((IntPtr) layer.LayerName); }
+
+        supportedLayers[name] = layer.LayerVersion;
+        Log.Information("[OpenXR] API Layer: Name={Name} Version={Version}", name, layer.LayerVersion);
     }
 
     ISet<string> supportedExtensions = new HashSet<string>();
-    
+
     uint instanceExtensionCount = 0;
-    xr.EnumerateInstanceExtensionProperties((byte*)IntPtr.Zero, instanceExtensionCount, &instanceExtensionCount, null);
-    Span<ExtensionProperties> exts = stackalloc ExtensionProperties[(int)instanceExtensionCount];
+    xr.EnumerateInstanceExtensionProperties((byte*) IntPtr.Zero, instanceExtensionCount, &instanceExtensionCount, null);
+    Span<ExtensionProperties> exts = stackalloc ExtensionProperties[(int) instanceExtensionCount];
     for (var i = 0; i < instanceExtensionCount; i++) {
         exts[i] = new ExtensionProperties(StructureType.TypeExtensionProperties);
     }
+
     xr.EnumerateInstanceExtensionProperties((string) null, ref instanceExtensionCount, exts);
 
     foreach (var extensionProp in exts) {
@@ -86,26 +87,21 @@ unsafe {
         supportedExtensions.Add(name);
         Log.Information("[Instance] Extension: Name={Name} Version={Version}", name, extensionProp.ExtensionVersion);
     }
-    
+
     var ici = new InstanceCreateInfo(StructureType.InstanceCreateInfo) {
         EnabledApiLayerCount = 0,
         EnabledApiLayerNames = null,
     };
 
     var extensions = new List<string>();
-    if (supportedExtensions.Contains("XR_KHR_D3D11_enable")) {
-        extensions.Add("XR_KHR_D3D11_enable");
-    } else {
+    if (supportedExtensions.Contains("XR_KHR_D3D11_enable")) { extensions.Add("XR_KHR_D3D11_enable"); } else {
         Log.Error("XR_KHR_D3D11_enable extension not supported!");
     }
-    
-    if (supportedExtensions.Contains("XR_FB_display_refresh_rate")) {
-        extensions.Add("XR_FB_display_refresh_rate");
-    }
-    if (supportedExtensions.Contains("XR_EXT_debug_utils")) {
-        extensions.Add("XR_EXT_debug_utils");
-    }
-    
+
+    if (supportedExtensions.Contains("XR_FB_display_refresh_rate")) { extensions.Add("XR_FB_display_refresh_rate"); }
+
+    if (supportedExtensions.Contains("XR_EXT_debug_utils")) { extensions.Add("XR_EXT_debug_utils"); }
+
     var instance = new Instance();
 
     var ansiExtensions = extensions.Select(e => Marshal.StringToHGlobalAnsi(e)).ToArray();
@@ -121,7 +117,7 @@ unsafe {
         };
         Marshal.Copy(appname.ToCharArray(), 0, (IntPtr) ici.ApplicationInfo.ApplicationName, appname.Length);
         ici.ApplicationInfo.EngineName[0] = (byte) '\0';
-        
+
         xr.CreateInstance(ici, ref instance);
         xr.CurrentInstance = instance;
     }
@@ -130,14 +126,15 @@ unsafe {
     var instanceProperties = new InstanceProperties(StructureType.InstanceProperties);
     xr.GetInstanceProperties(instance, ref instanceProperties);
     var runtimeName = Marshal.PtrToStringUTF8((IntPtr) instanceProperties.RuntimeName);
-    Log.Information("[Instance] Runtime: Name={Name} Version={Version}", runtimeName, instanceProperties.RuntimeVersion);
+    Log.Information("[Instance] Runtime: Name={Name} Version={Version}", runtimeName,
+        instanceProperties.RuntimeVersion);
 
     // SYSTEM
-    var systemGetInfo = new SystemGetInfo(StructureType.SystemGetInfo) { FormFactor = FormFactor.HeadMountedDisplay };
+    var systemGetInfo = new SystemGetInfo(StructureType.SystemGetInfo) {FormFactor = FormFactor.HeadMountedDisplay};
     ulong systemId = 0; // NOTE: THIS IS ZERO IF STEAMVR IS OPEN BUT LOADED XR RUNTIME IS OCULUS'S
     xr.GetSystem((Instance) xr.CurrentInstance, &systemGetInfo, (ulong*) &systemId);
     Log.Information("[System] Id={SystemId}", systemId);
-    
+
     var systemProperties = new SystemProperties(StructureType.SystemProperties);
     xr.GetSystemProperties(instance, systemId, ref systemProperties);
     var systemName = Marshal.PtrToStringUTF8((IntPtr) systemProperties.SystemName);
@@ -150,16 +147,14 @@ unsafe {
     Log.Information("[System] D3D11 Adapter LUID={LUID}", d3d11Requirements.AdapterLuid);
 
     var dxgiFactory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
-    
+
     var found = false;
     var adapterIndex = 0;
     IDXGIAdapter adapter = null;
-    
+
     while (!found && !dxgiFactory.EnumAdapters(adapterIndex, out adapter).Failure) {
         var luid = (ulong) (adapter.Description.Luid.HighPart << sizeof(uint)) + adapter.Description.Luid.LowPart;
-        if (luid == d3d11Requirements.AdapterLuid) {
-            found = true;
-        }
+        if (luid == d3d11Requirements.AdapterLuid) { found = true; }
 
         adapterIndex++;
     }
@@ -177,8 +172,8 @@ unsafe {
     Log.Information("[D3D11] Feature Level = {FeatureLevel}", featureLevel);
 
     var d3d11Khr = new GraphicsBindingD3D11KHR(StructureType.GraphicsBindingD3D11Khr);
-    d3d11Khr.Device = (void*) device.NativePointer; 
-    
+    d3d11Khr.Device = (void*) device.NativePointer;
+
     var sci = new SessionCreateInfo(StructureType.SessionCreateInfo);
     sci.SystemId = systemId;
     sci.Next = &d3d11Khr;
@@ -186,8 +181,7 @@ unsafe {
     var session = new Session();
     xr.CreateSession(instance, sci, ref session);
 
-    foreach (var ansiExtension in ansiExtensions) {
-        Marshal.FreeHGlobal(ansiExtension);
-    }
+    foreach (var ansiExtension in ansiExtensions) { Marshal.FreeHGlobal(ansiExtension); }
 }
+
 #endregion
