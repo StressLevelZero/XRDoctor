@@ -25,7 +25,7 @@ public static class SystemDiagnostics {
         using (var query = new ManagementObjectSearcher("SELECT MaximumSize FROM Win32_PageFileSetting")) {
             foreach (var obj in query.Get()) {
                 var maximumSize = (uint) obj.GetPropertyValue("MaximumSize");
-                Log.Information("[{LogTag}] PageFileSetting MaximumSize={maximumSize}", maximumSize);
+                Log.Information("[{LogTag}] PageFileSetting MaximumSize={maximumSize}", LogTag, maximumSize);
             }
         }
     }
