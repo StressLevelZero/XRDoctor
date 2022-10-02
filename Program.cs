@@ -7,6 +7,7 @@ using SLZ.XRDoctor;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using XRDoctor;
 
 var programName = FiggleFonts.Standard.Render("SLZ OpenXR Doctor");
 Console.WriteLine(programName);
@@ -45,6 +46,9 @@ HardwareDiagnostics.FindHeadsets(out var headsets);
 if (XR_RUNTIME_JSON.Contains("Steam", StringComparison.InvariantCultureIgnoreCase)) {
     SteamVRDiagnostics.CheckDevices();
 }
+
+GameDiagnostics.Check();
+SystemDiagnostics.Check();
 
 #region OpenXR
 
@@ -85,7 +89,7 @@ unsafe {
         unsafe { name = Marshal.PtrToStringUTF8((IntPtr) extensionProp.ExtensionName); }
 
         supportedExtensions.Add(name);
-        Log.Information("[Instance] Extension: Name={Name} Version={Version}", name, extensionProp.ExtensionVersion);
+        Log.Information("[OpenXR Instance] Extension: Name={Name} Version={Version}", name, extensionProp.ExtensionVersion);
     }
 
     var ici = new InstanceCreateInfo(StructureType.InstanceCreateInfo) {
@@ -126,25 +130,25 @@ unsafe {
     var instanceProperties = new InstanceProperties(StructureType.InstanceProperties);
     xr.GetInstanceProperties(instance, ref instanceProperties);
     var runtimeName = Marshal.PtrToStringUTF8((IntPtr) instanceProperties.RuntimeName);
-    Log.Information("[Instance] Runtime: Name={Name} Version={Version}", runtimeName,
+    Log.Information("[OpenXR Instance] Runtime: Name={Name} Version={Version}", runtimeName,
         instanceProperties.RuntimeVersion);
 
     // SYSTEM
     var systemGetInfo = new SystemGetInfo(StructureType.SystemGetInfo) {FormFactor = FormFactor.HeadMountedDisplay};
     ulong systemId = 0; // NOTE: THIS IS ZERO IF STEAMVR IS OPEN BUT LOADED XR RUNTIME IS OCULUS'S
     xr.GetSystem((Instance) xr.CurrentInstance, &systemGetInfo, (ulong*) &systemId);
-    Log.Information("[System] Id={SystemId}", systemId);
+    Log.Information("[OpenXR System] Id={SystemId}", systemId);
 
     var systemProperties = new SystemProperties(StructureType.SystemProperties);
     xr.GetSystemProperties(instance, systemId, ref systemProperties);
     var systemName = Marshal.PtrToStringUTF8((IntPtr) systemProperties.SystemName);
-    Log.Information("[System] Name={Name}", systemName);
+    Log.Information("[OpenXR System] Name={Name}", systemName);
 
     xr.TryGetInstanceExtension(null, instance, out KhrD3D11Enable khrD3D11);
 
     var d3d11Requirements = new GraphicsRequirementsD3D11KHR(StructureType.GraphicsRequirementsD3D11Khr);
     khrD3D11.GetD3D11GraphicsRequirements(instance, systemId, ref d3d11Requirements);
-    Log.Information("[System] D3D11 Adapter LUID={LUID}", d3d11Requirements.AdapterLuid);
+    Log.Information("[OpenXR System] D3D11 Adapter LUID={LUID}", d3d11Requirements.AdapterLuid);
 
     var dxgiFactory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
 
