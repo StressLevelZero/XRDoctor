@@ -14,10 +14,12 @@ public sealed class RuntimeManifest {
 
 [Serializable]
 public sealed class Runtime {
-    [JsonProperty("name")] public string Name { get; private set; }
+    [JsonProperty("name")]
+    public string Name { get; private set; }
 
     [JsonProperty("library_path", Required = Required.Always)]
     public string LibraryPath { get; private set; }
 
-    [JsonExtensionData] public IDictionary<string, object> AdditionalData { get; private set; }
+    [JsonExtensionData]
+    public IDictionary<string, object> AdditionalData { get; private set; }
 }

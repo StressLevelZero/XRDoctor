@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Serilog;
 
-namespace XRDoctor;
+namespace SLZ.XRDoctor;
 
 public static class GameDiagnostics {
     private const string LogTag = "BONELAB";
@@ -26,12 +26,12 @@ public static class GameDiagnostics {
         }
 
         if (!Directory.Exists(appDataPath)) {
-            Log.Error("[{tag}] Could not find AppData/LocalLow directory: {appDataPath}.", LogTag, appDataPath);
+            Log.Error("[{LogTag}]  Could not find AppData/LocalLow directory: {appDataPath}.", LogTag, appDataPath);
         }
 
         var gamePath = Path.Combine(appDataPath, "Stress Level Zero", "BONELAB");
         if (!Directory.Exists(appDataPath)) {
-            Log.Error("[{tag}] Could not find game's persistend data directory: {gamepath}.", LogTag, gamePath);
+            Log.Error("[{LogTag}]  Could not find game's persistend data directory: {gamepath}.", LogTag, gamePath);
         }
 
         var playerLogPath = Path.Combine(gamePath, "Player.log");

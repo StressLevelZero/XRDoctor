@@ -9,24 +9,24 @@ using Valve.VR;
 namespace SLZ.XRDoctor;
 
 public static class SteamVRDiagnostics {
-    private const string RuntimeName = "SteamVR";
+    private const string LogTag = "SteamVR";
 
     public static void CheckDirectly(out bool hasSteamVR) {
-        Log.Information("[{runtime}] Checking directly for runtime at {SteamRegistryKey}.", RuntimeName,
+        Log.Information("[{LogTag}] Checking directly for runtime at {SteamRegistryKey}.", LogTag,
             @"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam");
         using var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam");
         do {
             try {
                 var o = key?.GetValue("SteamPath");
                 if (o is not string steamLocation || string.IsNullOrWhiteSpace(steamLocation)) {
-                    Log.Information("[{runtime}] Not found.", RuntimeName);
+                    Log.Information("[{LogTag}] Not found.", LogTag);
                     break;
                 }
 
                 var lfPath = Path.Combine(steamLocation, "steamapps", "libraryfolders.vdf");
 
                 if (!File.Exists(lfPath)) {
-                    Log.Warning("[{runtime}] Could not find libraryfolders.vdf at \"{lfPath}\"", RuntimeName, lfPath);
+                    Log.Warning("[{LogTag}] Could not find libraryfolders.vdf at \"{lfPath}\"", LogTag, lfPath);
                     break;
                 }
 
@@ -48,13 +48,13 @@ public static class SteamVRDiagnostics {
                     var runtimePath = Path.Combine(path, "steamapps", "common", "SteamVR", "steamxr_win64.json");
 
                     Log.Warning(
-                        "[{runtime}] Checking Steam install directory for Runtime JSON at path: \"{runtimePath}\".",
-                        RuntimeName,
+                        "[{LogTag}] Checking Steam install directory for Runtime JSON at path: \"{runtimePath}\".",
+                        LogTag,
                         runtimePath);
 
                     if (!File.Exists(runtimePath)) {
-                        Log.Warning("[{runtime}] Runtime JSON not found at expected path \"{runtimePath}\".",
-                            RuntimeName,
+                        Log.Warning("[{LogTag}] Runtime JSON not found at expected path \"{runtimePath}\".",
+                            LogTag,
                             runtimePath);
                         continue;
                     }
@@ -62,7 +62,7 @@ public static class SteamVRDiagnostics {
                     var runtimeJsonStr = File.ReadAllText(runtimePath);
 
                     if (string.IsNullOrWhiteSpace(runtimeJsonStr)) {
-                        Log.Error("[{runtime}] Runtime JSON was empty at \"{runtimePath}\".", RuntimeName, runtimePath);
+                        Log.Error("[{LogTag}] Runtime JSON was empty at \"{runtimePath}\".", LogTag, runtimePath);
                         break;
                     }
 
@@ -70,15 +70,15 @@ public static class SteamVRDiagnostics {
                     try {
                         manifest = JsonConvert.DeserializeObject<RuntimeManifest>(runtimeJsonStr);
                     } catch (JsonException e) {
-                        Log.Error(e, "[{runtime}] JSON did not parse correctly at \"{runtimePath}\".", RuntimeName,
+                        Log.Error(e, "[{LogTag}] JSON did not parse correctly at \"{runtimePath}\".", LogTag,
                             runtimePath);
                         break;
                     }
 
-                    Log.Information("[{runtime}] Found runtime at path \"{location}\".", RuntimeName, runtimePath);
+                    Log.Information("[{LogTag}] Found runtime at path \"{location}\".", LogTag, runtimePath);
                     hasSteamVR = true;
                 }
-            } catch (Exception e) { Log.Error(e, "[{runtime}]} Error while determining install state.", RuntimeName); }
+            } catch (Exception e) { Log.Error(e, "[{LogTag}]} Error while determining install state.", LogTag); }
         } while (false);
 
         hasSteamVR = false;
@@ -91,23 +91,23 @@ public static class SteamVRDiagnostics {
 
         var err = default(EVRInitError);
         var sys = OpenVR.Init(ref err, EVRApplicationType.VRApplication_Overlay);
-        if (err != EVRInitError.None) { Log.Error("[{runtime}] Error initting {err}", RuntimeName, err); }
+        if (err != EVRInitError.None) { Log.Error("[{LogTag}] Error initting {err}", LogTag, err); }
 
         var appManifestResult = OpenVR.Applications.AddApplicationManifest(appManifest, false);
         if (appManifestResult != EVRApplicationError.None) {
-            Log.Error("[{runtime}] Error adding app manifest: {appManifestResult}", RuntimeName, appManifestResult);
+            Log.Error("[{LogTag}] Error adding app manifest: {appManifestResult}", LogTag, appManifestResult);
         }
 
         var actionManifestResult = OpenVR.Input.SetActionManifestPath(actionsJson);
         if (actionManifestResult != EVRInputError.None) {
-            Log.Error("[{runtime}] Error setting action manifest: {actionManifestResult}", RuntimeName,
+            Log.Error("[{LogTag}] Error setting action manifest: {actionManifestResult}", LogTag,
                 actionManifestResult);
         }
 
         ulong defaultActionSetHandle = 0;
         var ashResult = OpenVR.Input.GetActionSetHandle("/actions/default", ref defaultActionSetHandle);
         if (ashResult != EVRInputError.None) {
-            Log.Error("[{runtime}] Error getting action set handle for default action set: {ashResult}", RuntimeName,
+            Log.Error("[{LogTag}] Error getting action set handle for default action set: {ashResult}", LogTag,
                 ashResult);
         }
 
@@ -119,8 +119,8 @@ public static class SteamVRDiagnostics {
         var ipd = OpenVR.System.GetFloatTrackedDeviceProperty(0, ETrackedDeviceProperty.Prop_UserIpdMeters_Float,
             ref ipdError);
         if (ipdError == ETrackedPropertyError.TrackedProp_Success) {
-            Log.Information("[{runtime}] IPD: {ipd}", RuntimeName, ipd);
-        } else { Log.Error("[{runtime}] Error updating IPD: {ipdError}", RuntimeName, ipdError); }
+            Log.Information("[{LogTag}] IPD: {ipd}", LogTag, ipd);
+        } else { Log.Error("[{LogTag}] Error updating IPD: {ipdError}", LogTag, ipdError); }
 
         var left = -1;
         var right = -1;
@@ -136,7 +136,7 @@ public static class SteamVRDiagnostics {
                 OpenVR.System.GetStringTrackedDeviceProperty(i, ETrackedDeviceProperty.Prop_ModelNumber_String,
                     modelNumber, count, ref propErr);
 
-                Log.Information("[{runtime}] Device {i}: modelNumber={modelNumber} class={class}", RuntimeName, i,
+                Log.Information("[{LogTag}] Device {i}: modelNumber={modelNumber} class={class}", LogTag, i,
                     modelNumber, trackedDeviceClass);
             }
 

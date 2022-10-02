@@ -7,7 +7,6 @@ using SLZ.XRDoctor;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using XRDoctor;
 
 var programName = FiggleFonts.Standard.Render("SLZ OpenXR Doctor");
 Console.WriteLine(programName);
@@ -22,19 +21,21 @@ Log.Logger = new LoggerConfiguration()
 
 OpenXRDiagnostics.FindActiveRuntime(out var XR_RUNTIME_JSON);
 if (!string.IsNullOrWhiteSpace(XR_RUNTIME_JSON)) {
-    Log.Information("Active Runtime (XR_RUNTIME_JSON): {XR_RUNTIME_JSON}", XR_RUNTIME_JSON);
-} else { Log.Error("Could not find an active OpenXR runtime."); }
+    Log.Information("[{LogTag}] Active Runtime (XR_RUNTIME_JSON): {XR_RUNTIME_JSON}", "OpenXR", XR_RUNTIME_JSON);
+} else { Log.Error("[{LogTag}] Could not find an active OpenXR runtime.", "OpenXR"); }
 
 OpenXRDiagnostics.FindRegisteredRuntimes(out var runtimes);
 foreach (var (runtimeName, manifest) in runtimes) {
     if (string.IsNullOrWhiteSpace(manifest.Runtime.Name)) {
-        Log.Information("Available Runtime: {runtime} - {@manifest}", runtimeName, manifest);
+        Log.Information("[{LogTag}] Available Runtime: {runtime} - {@manifest}", "OpenXR", runtimeName, manifest);
     } else {
-        Log.Information("Available Runtime: \"{name}\" - {runtime} - {@manifest}", manifest.Runtime.Name,
+        Log.Information("[{LogTag}] Available Runtime: \"{name}\" - {runtime} - {@manifest}", "OpenXR", manifest.Runtime.Name,
             runtimeName,
             manifest);
     }
 }
+
+OpenXRDiagnostics.FindImplicitApiLayers(out var implicitLayers);
 
 OculusDiagnostics.CheckDirectly(out var hasOculus);
 SteamVRDiagnostics.CheckDirectly(out var hasSteamVR);
@@ -52,7 +53,7 @@ SystemDiagnostics.Check();
 
 #region OpenXR
 
-Log.Information("Loading OpenXR.");
+Log.Information("[{LogTag}] Loading OpenXR.", "OpenXR");
 var xr = XR.GetApi();
 
 unsafe {
@@ -70,7 +71,7 @@ unsafe {
         unsafe { name = Marshal.PtrToStringUTF8((IntPtr) layer.LayerName); }
 
         supportedLayers[name] = layer.LayerVersion;
-        Log.Information("[OpenXR] API Layer: Name={Name} Version={Version}", name, layer.LayerVersion);
+        Log.Information("[{LogTag}] API Layer: Name={Name} Version={Version}", "OpenXR", name, layer.LayerVersion);
     }
 
     ISet<string> supportedExtensions = new HashSet<string>();
@@ -89,7 +90,7 @@ unsafe {
         unsafe { name = Marshal.PtrToStringUTF8((IntPtr) extensionProp.ExtensionName); }
 
         supportedExtensions.Add(name);
-        Log.Information("[OpenXR Instance] Extension: Name={Name} Version={Version}", name, extensionProp.ExtensionVersion);
+        Log.Information("[{LogTag}][Instance] Extension: Name={Name} Version={Version}", "OpenXR", name, extensionProp.ExtensionVersion);
     }
 
     var ici = new InstanceCreateInfo(StructureType.InstanceCreateInfo) {
@@ -99,7 +100,7 @@ unsafe {
 
     var extensions = new List<string>();
     if (supportedExtensions.Contains("XR_KHR_D3D11_enable")) { extensions.Add("XR_KHR_D3D11_enable"); } else {
-        Log.Error("XR_KHR_D3D11_enable extension not supported!");
+        Log.Error("[{LogTag}] XR_KHR_D3D11_enable extension not supported!", "OpenXR");
     }
 
     if (supportedExtensions.Contains("XR_FB_display_refresh_rate")) { extensions.Add("XR_FB_display_refresh_rate"); }
@@ -130,25 +131,25 @@ unsafe {
     var instanceProperties = new InstanceProperties(StructureType.InstanceProperties);
     xr.GetInstanceProperties(instance, ref instanceProperties);
     var runtimeName = Marshal.PtrToStringUTF8((IntPtr) instanceProperties.RuntimeName);
-    Log.Information("[OpenXR Instance] Runtime: Name={Name} Version={Version}", runtimeName,
+    Log.Information("[{LogTag}][nstance] Runtime: Name={Name} Version={Version}", "OpenXR", runtimeName,
         instanceProperties.RuntimeVersion);
 
     // SYSTEM
     var systemGetInfo = new SystemGetInfo(StructureType.SystemGetInfo) {FormFactor = FormFactor.HeadMountedDisplay};
     ulong systemId = 0; // NOTE: THIS IS ZERO IF STEAMVR IS OPEN BUT LOADED XR RUNTIME IS OCULUS'S
     xr.GetSystem((Instance) xr.CurrentInstance, &systemGetInfo, (ulong*) &systemId);
-    Log.Information("[OpenXR System] Id={SystemId}", systemId);
+    Log.Information("[{LogTag}][System] Id={SystemId}", "OpenXR", systemId);
 
     var systemProperties = new SystemProperties(StructureType.SystemProperties);
     xr.GetSystemProperties(instance, systemId, ref systemProperties);
     var systemName = Marshal.PtrToStringUTF8((IntPtr) systemProperties.SystemName);
-    Log.Information("[OpenXR System] Name={Name}", systemName);
+    Log.Information("[{LogTag}][System] Name={Name}", "OpenXR", systemName);
 
     xr.TryGetInstanceExtension(null, instance, out KhrD3D11Enable khrD3D11);
 
     var d3d11Requirements = new GraphicsRequirementsD3D11KHR(StructureType.GraphicsRequirementsD3D11Khr);
     khrD3D11.GetD3D11GraphicsRequirements(instance, systemId, ref d3d11Requirements);
-    Log.Information("[OpenXR System] D3D11 Adapter LUID={LUID}", d3d11Requirements.AdapterLuid);
+    Log.Information("[{LogTag}][System] D3D11 Adapter LUID={LUID}", "OpenXR", d3d11Requirements.AdapterLuid);
 
     var dxgiFactory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
 
@@ -173,7 +174,7 @@ unsafe {
         out device,
         out var featureLevel,
         out var immediateContext);
-    Log.Information("[D3D11] Feature Level = {FeatureLevel}", featureLevel);
+    Log.Information("[{LogTag}] Feature Level = {FeatureLevel}", "D3D11", featureLevel);
 
     var d3d11Khr = new GraphicsBindingD3D11KHR(StructureType.GraphicsBindingD3D11Khr);
     d3d11Khr.Device = (void*) device.NativePointer;

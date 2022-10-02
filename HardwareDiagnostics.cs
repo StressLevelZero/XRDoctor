@@ -2,6 +2,7 @@ using System.Management;
 using Serilog;
 
 public static class HardwareDiagnostics {
+    private const string LogTag = "Hardware";
     public static void FindHeadsets(out Dictionary<string, string> headsets) {
         headsets = new Dictionary<string, string>();
 
@@ -21,7 +22,7 @@ public static class HardwareDiagnostics {
             {
                 if (dataProp is {Value: string data and "Index HMD"} &&
                     deviceIdProp is {Value: string deviceId}) {
-                    Log.Information("Found headset: {Name} {DeviceID}", data, deviceId);
+                    Log.Information("[{LogTag}] Found headset: {Name} {DeviceID}", LogTag, data, deviceId);
                     headsets[data] = deviceId;
                 }
             }
@@ -29,7 +30,7 @@ public static class HardwareDiagnostics {
                 if (dataProp is {Value: string data and "Quest 2"} &&
                     deviceIdProp is {Value: string deviceId}) {
                     headsets[data] = deviceId;
-                    Log.Information("Found headset: {Name} {DeviceID}", data, deviceId);
+                    Log.Information("[{LogTag}] Found headset: {Name} {DeviceID}", LogTag, data, deviceId);
                 }
             }
         }
