@@ -48,8 +48,8 @@ if (XR_RUNTIME_JSON.Contains("Steam", StringComparison.InvariantCultureIgnoreCas
     SteamVRDiagnostics.CheckDevices();
 }
 
-GameDiagnostics.Check();
 SystemDiagnostics.Check();
+GameDiagnostics.Check();
 
 #region OpenXR
 
@@ -136,7 +136,7 @@ unsafe {
 
     // SYSTEM
     var systemGetInfo = new SystemGetInfo(StructureType.SystemGetInfo) {FormFactor = FormFactor.HeadMountedDisplay};
-    ulong systemId = 0; // NOTE: THIS IS ZERO IF STEAMVR IS OPEN BUT LOADED XR RUNTIME IS OCULUS'S
+    ulong systemId = 0; // NOTE: THIS MAY BE ZERO IF STEAMVR IS OPEN BUT LOADED XR RUNTIME IS OCULUS'S
     xr.GetSystem((Instance) xr.CurrentInstance, &systemGetInfo, (ulong*) &systemId);
     Log.Information("[{LogTag}][System] Id={SystemId}", "OpenXR", systemId);
 
@@ -144,48 +144,7 @@ unsafe {
     xr.GetSystemProperties(instance, systemId, ref systemProperties);
     var systemName = Marshal.PtrToStringUTF8((IntPtr) systemProperties.SystemName);
     Log.Information("[{LogTag}][System] Name={Name}", "OpenXR", systemName);
-
-    xr.TryGetInstanceExtension(null, instance, out KhrD3D11Enable khrD3D11);
-
-    var d3d11Requirements = new GraphicsRequirementsD3D11KHR(StructureType.GraphicsRequirementsD3D11Khr);
-    khrD3D11.GetD3D11GraphicsRequirements(instance, systemId, ref d3d11Requirements);
-    Log.Information("[{LogTag}][System] D3D11 Adapter LUID={LUID}", "OpenXR", d3d11Requirements.AdapterLuid);
-
-    var dxgiFactory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
-
-    var found = false;
-    var adapterIndex = 0;
-    IDXGIAdapter adapter = null;
-
-    while (!found && !dxgiFactory.EnumAdapters(adapterIndex, out adapter).Failure) {
-        var luid = (ulong) (adapter.Description.Luid.HighPart << sizeof(uint)) + adapter.Description.Luid.LowPart;
-        if (luid == d3d11Requirements.AdapterLuid) { found = true; }
-
-        adapterIndex++;
-    }
-
-    ID3D11Device device = default;
-
-    D3D11.D3D11CreateDevice(
-        adapter,
-        DriverType.Unknown,
-        DeviceCreationFlags.None,
-        new FeatureLevel[] {FeatureLevel.Level_11_1},
-        out device,
-        out var featureLevel,
-        out var immediateContext);
-    Log.Information("[{LogTag}] Feature Level = {FeatureLevel}", "D3D11", featureLevel);
-
-    var d3d11Khr = new GraphicsBindingD3D11KHR(StructureType.GraphicsBindingD3D11Khr);
-    d3d11Khr.Device = (void*) device.NativePointer;
-
-    var sci = new SessionCreateInfo(StructureType.SessionCreateInfo);
-    sci.SystemId = systemId;
-    sci.Next = &d3d11Khr;
-
-    var session = new Session();
-    xr.CreateSession(instance, sci, ref session);
-
+    
     foreach (var ansiExtension in ansiExtensions) { Marshal.FreeHGlobal(ansiExtension); }
 }
 
