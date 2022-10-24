@@ -15,10 +15,10 @@
         <PackageLicenseUrl>https://github.com/StressLevelZero/XRDoctor/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/StressLevelZero/XRDoctor.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageVersion>0.0.3</PackageVersion>
-        <AssemblyVersion>0.0.3</AssemblyVersion>
-        <PackageTags>v0.0.3</PackageTags>
-        <FileVersion>0.0.3</FileVersion>
+        <PackageVersion>0.0.4</PackageVersion>
+        <AssemblyVersion>0.0.4</AssemblyVersion>
+        <PackageTags>v0.0.4</PackageTags>
+        <FileVersion>0.0.4</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

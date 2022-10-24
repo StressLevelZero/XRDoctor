@@ -27,6 +27,54 @@ public static class SystemDiagnostics {
                 LogTag, drive.Name, drive.DriveFormat, availableFreeSpace, availableFreeSpaceGiB, totalFreeSpace,
                 totalFreeSpaceGiB, totalSize, totalSizeGiB);
         }
+        
+        
+        using (var query = new ManagementObjectSearcher("SELECT * FROM Win32_Processor"))
+        using (var objs = query.Get()) {
+            foreach (var obj in objs) {
+                var addressWidth = (ushort)obj.GetPropertyValue("AddressWidth");
+                var architecture = (ushort)obj.GetPropertyValue("Architecture");
+                var availability = (ushort)obj.GetPropertyValue("Availability");
+                var dataWidth = (ushort)obj.GetPropertyValue("DataWidth");
+                var extClock = (uint)obj.GetPropertyValue("ExtClock");
+                var family = (ushort)obj.GetPropertyValue("Family");
+                var l2CacheSize = (uint)obj.GetPropertyValue("L2CacheSize");
+                var l3CacheSize = (uint)obj.GetPropertyValue("L3CacheSize");
+                var level = (ushort)obj.GetPropertyValue("Level");
+                var manufacturer = (string)obj.GetPropertyValue("Manufacturer");
+                var maxClockSpeed = (uint)obj.GetPropertyValue("MaxClockSpeed");
+                var name = (string)obj.GetPropertyValue("Name");
+                var numberOfCores = (uint)obj.GetPropertyValue("NumberOfCores");
+                var numberOfEnabledCore = (uint)obj.GetPropertyValue("NumberOfEnabledCore");
+                var numberOfLogicalProcessors = (uint)obj.GetPropertyValue("NumberOfLogicalProcessors");
+                var otherFamilyDescription = (string)obj.GetPropertyValue("OtherFamilyDescription");
+                var partNumber = (string)obj.GetPropertyValue("PartNumber");
+                var revision = (ushort)obj.GetPropertyValue("Revision");
+                var secondLevelAddressTranslationExtensions = (bool)obj.GetPropertyValue("SecondLevelAddressTranslationExtensions");
+                var socketDesignation = (string)obj.GetPropertyValue("SocketDesignation");
+                var stepping = (string)obj.GetPropertyValue("Stepping");
+                var threadCount = (uint)obj.GetPropertyValue("ThreadCount");
+                var version = (string)obj.GetPropertyValue("Version");
+                var virtualizationFirmwareEnabled = (bool)obj.GetPropertyValue("VirtualizationFirmwareEnabled");
+                var vMMonitorModeExtensions = (bool)obj.GetPropertyValue("VMMonitorModeExtensions");
+
+                manufacturer = manufacturer == null ? "<null>" : $"\"{manufacturer.TrimEnd()}\"";
+                name = name == null ? "<null>" : $"\"{name.TrimEnd()}\"";
+                otherFamilyDescription = otherFamilyDescription == null ? "<null>" : $"\"{otherFamilyDescription.TrimEnd()}\"";
+                partNumber = partNumber == null ? "<null>" : $"\"{partNumber.TrimEnd()}\"";
+                socketDesignation = socketDesignation == null ? "<null>" : $"\"{socketDesignation.TrimEnd()}\"";
+                stepping = stepping == null ? "<null>" : $"\"{stepping.TrimEnd()}\"";
+                version = version == null ? "<null>" : $"\"{version.TrimEnd()}\"";
+
+                Log.Information(
+                    "[{LogTag}] Processor AddressWidth={AddressWidth} Architecture={Architecture} Availability={Availability} DataWidth={DataWidth} ExtClock={ExtClock} Family={Family} L2CacheSize={L2CacheSize} L3CacheSize={L3CacheSize} Level={Level} Manufacturer={Manufacturer} MaxClockSpeed={MaxClockSpeed} Name={Name} NumberOfCores={NumberOfCores} NumberOfEnabledCore={NumberOfEnabledCore} NumberOfLogicalProcessors={NumberOfLogicalProcessors} OtherFamilyDescription={OtherFamilyDescription} PartNumber={PartNumber} Revision={Revision} SecondLevelAddressTranslationExtensions={SecondLevelAddressTranslationExtensions} SocketDesignation={SocketDesignation} Stepping={Stepping} ThreadCount={ThreadCount} Version={Version} VirtualizationFirmwareEnabled={VirtualizationFirmwareEnabled} VMMonitorModeExtensions={VMMonitorModeExtensions}",
+                    LogTag, addressWidth, architecture, availability, dataWidth, extClock, family, l2CacheSize,
+                    l3CacheSize, level, manufacturer, maxClockSpeed, name, numberOfCores, numberOfEnabledCore,
+                    numberOfLogicalProcessors, otherFamilyDescription, partNumber, revision,
+                    secondLevelAddressTranslationExtensions, socketDesignation, stepping, threadCount, version,
+                    virtualizationFirmwareEnabled, vMMonitorModeExtensions);
+            }
+        }
 
         using (var query = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
         using (var objs = query.Get()) {
