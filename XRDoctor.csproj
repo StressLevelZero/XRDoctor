@@ -11,6 +11,7 @@
         <Description>Utility for debugging XR runtime issues</Description>
         <Copyright>Stress Level Zero, Inc.</Copyright>
         <Company>Stress Level Zero, Inc.</Company>
+        <ApplicationIcon>XRDoctor.ico</ApplicationIcon>
         <PackageProjectUrl>https://github.com/StressLevelZero/XRDoctor</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/StressLevelZero/XRDoctor/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/StressLevelZero/XRDoctor.git</RepositoryUrl>
