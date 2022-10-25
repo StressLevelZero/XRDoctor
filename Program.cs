@@ -1,23 +1,33 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Globalization;
+using System.Runtime.InteropServices;
 using Figgle;
 using Serilog;
 using Silk.NET.OpenXR;
-using Silk.NET.OpenXR.Extensions.KHR;
 using SLZ.XRDoctor;
-using Vortice.Direct3D;
-using Vortice.Direct3D11;
-using Vortice.DXGI;
 
 var programName = FiggleFonts.Standard.Render("SLZ OpenXR Doctor");
 Console.WriteLine(programName);
 
 const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {Message:l}{NewLine}{Exception}";
 
+var utcNowStr = DateTime.UtcNow
+    .ToString(CultureInfo.InvariantCulture.DateTimeFormat.UniversalSortableDateTimePattern,CultureInfo.InvariantCulture);
+var localNowStr = DateTime.UtcNow.ToLocalTime()
+    .ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern, CultureInfo.InvariantCulture);
+
+var sanitizedNowStr = new string(localNowStr
+    .Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c)
+    .ToArray());
+var logFilename = $"xrdoctor-{sanitizedNowStr}.txt";
+
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(outputTemplate: outputTemplate)
-    .WriteTo.File("log_.txt", outputTemplate: outputTemplate, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(logFilename, outputTemplate: outputTemplate)
     .MinimumLevel.Debug()
     .CreateLogger();
+
+Log.Information("[{LogTag}] Starting log at {UTC} (UTC) {local} (Local)", "XRDoctor", utcNowStr, localNowStr);
 
 OpenXRDiagnostics.FindActiveRuntime(out var XR_RUNTIME_JSON);
 if (!string.IsNullOrWhiteSpace(XR_RUNTIME_JSON)) {
