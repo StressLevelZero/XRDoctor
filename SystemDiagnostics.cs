@@ -55,7 +55,13 @@ public static class SystemDiagnostics {
                     var numberOfLogicalProcessors = (uint) obj.GetPropertyValue("NumberOfLogicalProcessors");
                     var otherFamilyDescription = (string) obj.GetPropertyValue("OtherFamilyDescription");
                     var partNumber = (string) obj.GetPropertyValue("PartNumber");
-                    var revision = (ushort) obj.GetPropertyValue("Revision");
+                    string revision;
+                    try {
+                        revision = obj.GetPropertyValue("Revision").ToString();
+                    } catch (Exception e) {
+                        Log.Error(e, "Exception logging CPU revision.");
+                        revision = "<error>";
+                    }
                     var secondLevelAddressTranslationExtensions =
                         (bool) obj.GetPropertyValue("SecondLevelAddressTranslationExtensions");
                     var socketDesignation = (string) obj.GetPropertyValue("SocketDesignation");
