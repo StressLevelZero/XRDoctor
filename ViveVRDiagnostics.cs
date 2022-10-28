@@ -1,10 +1,10 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace SLZ.XRDoctor;
 
 public static class ViveVRDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(ViveVRDiagnostics));
     private const string LogTag = "ViveVR";
 
     public static void CheckDirectly(out bool hasViveVR) {

@@ -1,8 +1,9 @@
 using Newtonsoft.Json;
-using Serilog;
-using SLZ.XRDoctor;
+
+namespace SLZ.XRDoctor;
 
 public static class WindowsMRDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(WindowsMRDiagnostics));
     private const string LogTag = "WindowsMR";
 
     public static void CheckDirectly(out bool hasWindowsMR) {

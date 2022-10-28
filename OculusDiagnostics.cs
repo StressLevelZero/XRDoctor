@@ -1,10 +1,10 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace SLZ.XRDoctor;
 
 public static class OculusDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(OculusDiagnostics));
     private const string LogTag = "Oculus";
 
     public static void CheckDirectly(out bool hasOculus) {

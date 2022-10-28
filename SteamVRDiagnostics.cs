@@ -3,12 +3,12 @@ using Gameloop.Vdf.JsonConverter;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Serilog;
 using Valve.VR;
 
 namespace SLZ.XRDoctor;
 
 public static class SteamVRDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(SteamVRDiagnostics));
     private const string LogTag = "SteamVR";
 
     public static void CheckDirectly(out bool hasSteamVR) {

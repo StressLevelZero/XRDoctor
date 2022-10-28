@@ -1,7 +1,9 @@
 using System.Management;
-using Serilog;
+
+namespace SLZ.XRDoctor;
 
 public static class SystemDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(SystemDiagnostics));
     private const string LogTag = "System";
 
     public static void Check() {

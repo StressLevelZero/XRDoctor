@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace SLZ.XRDoctor;
 
 public static class OpenXRDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(OpenXRDiagnostics));
     private const string LogTag = "OpenXR";
 
     public static void FindActiveRuntime(out string XR_RUNTIME_JSON) {

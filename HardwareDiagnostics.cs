@@ -1,7 +1,9 @@
 using System.Management;
-using Serilog;
+
+namespace SLZ.XRDoctor;
 
 public static class HardwareDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(HardwareDiagnostics));
     private const string LogTag = "Hardware";
     public static void FindHeadsets(out Dictionary<string, string> headsets) {
         headsets = new Dictionary<string, string>();

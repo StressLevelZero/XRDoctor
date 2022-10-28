@@ -141,7 +141,7 @@ unsafe {
     var instanceProperties = new InstanceProperties(StructureType.InstanceProperties);
     xr.GetInstanceProperties(instance, ref instanceProperties);
     var runtimeName = Marshal.PtrToStringUTF8((IntPtr) instanceProperties.RuntimeName);
-    Log.Information("[{LogTag}][nstance] Runtime: Name={Name} Version={Version}", "OpenXR", runtimeName,
+    Log.Information("[{LogTag}][Instance] Runtime: Name={Name} Version={Version}", "OpenXR", runtimeName,
         instanceProperties.RuntimeVersion);
 
     // SYSTEM

@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
-using Serilog;
 
 namespace SLZ.XRDoctor;
 
 public static class GameDiagnostics {
+    private static readonly Serilog.ILogger Log = Serilog.Log.ForContext(typeof(GameDiagnostics));
     private const string LogTag = "BONELAB";
 
     [DllImport("shell32.dll")]
