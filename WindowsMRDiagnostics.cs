@@ -36,7 +36,7 @@ public static class WindowsMRDiagnostics {
 
                 Log.Information("[{LogTag}] Found runtime at path \"{location}\".", LogTag, runtimePath);
                 hasWindowsMR = true;
-            } catch (Exception e) { Log.Error(e, "[{LogTag}]} Error while determining install state.", LogTag); }
+            } catch (Exception e) { Log.Error(e, "[{LogTag}] Error while determining install state.", LogTag); }
         } while (false);
 
         hasWindowsMR = false;

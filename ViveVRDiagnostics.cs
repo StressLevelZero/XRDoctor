@@ -48,7 +48,7 @@ public static class ViveVRDiagnostics {
                 Log.Information("[{LogTag}] Runtime found at path \"{location}\".", LogTag, runtimePath);
                 hasViveVR = true;
                 return;
-            } catch (Exception e) { Log.Error(e, "[{LogTag}]} Error while determining install state.", LogTag); }
+            } catch (Exception e) { Log.Error(e, "[{LogTag}] Error while determining install state.", LogTag); }
         } while (false);
 
         hasViveVR = false;

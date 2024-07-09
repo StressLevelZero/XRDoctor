@@ -59,7 +59,7 @@ public static class OpenXRDiagnostics {
     }
     
     public static void FindImplicitApiLayers(out Dictionary<string, ApiLayerManifest> layers) {
-        Log.Information("[{LogTag}] Listing implicit API layers according to {ImplicitApiLayersRegistryKey}",
+        Log.Information("[{LogTag}] Listing implicit OpenXR API layers according to {ImplicitApiLayersRegistryKey}",
             LogTag, @"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit");
 
         layers = new Dictionary<string, ApiLayerManifest>();

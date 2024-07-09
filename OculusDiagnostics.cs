@@ -46,7 +46,7 @@ public static class OculusDiagnostics {
                 Log.Information("[{LogTag}] Runtime found at path \"{location}\".", LogTag, runtimePath);
                 hasOculus = true;
                 return;
-            } catch (Exception e) { Log.Error(e, "[{LogTag}]} Error while determining install state.", LogTag); }
+            } catch (Exception e) { Log.Error(e, "[{LogTag}] Error while determining install state.", LogTag); }
         } while (false);
 
         hasOculus = false;

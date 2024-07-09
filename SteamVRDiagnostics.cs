@@ -47,7 +47,7 @@ public static class SteamVRDiagnostics {
 
                     var runtimePath = Path.Combine(path, "steamapps", "common", "SteamVR", "steamxr_win64.json");
 
-                    Log.Warning(
+                    Log.Information(
                         "[{LogTag}] Checking Steam install directory for Runtime JSON at path: \"{runtimePath}\".",
                         LogTag,
                         runtimePath);
@@ -78,7 +78,7 @@ public static class SteamVRDiagnostics {
                     Log.Information("[{LogTag}] Found runtime at path \"{location}\".", LogTag, runtimePath);
                     hasSteamVR = true;
                 }
-            } catch (Exception e) { Log.Error(e, "[{LogTag}]} Error while determining install state.", LogTag); }
+            } catch (Exception e) { Log.Error(e, "[{LogTag}] Error while determining install state.", LogTag); }
         } while (false);
 
         hasSteamVR = false;
