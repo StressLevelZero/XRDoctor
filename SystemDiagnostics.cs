@@ -7,6 +7,23 @@ public static class SystemDiagnostics {
     private const string LogTag = "System";
 
     public static void Check() {
+        CheckTime();
+        CheckSystem();
+    }
+    
+    public static void CheckTime()
+    {
+        Log.Information(
+            "[{LogTag}] Timezone ID: {TimezoneID} DisplayName: {DisplayName} StandardName: {StandardName} " +
+            "DaylightName: {DaylightName} BaseUtcOffset: {BaseUtcOffset} " +
+            "SupportsDaylightSavingTime: {SupportsDaylightSavingTime} IsDaylightSavingTime: {IsDaylightSavingTime}",
+            LogTag,
+            TimeZoneInfo.Local.Id, TimeZoneInfo.Local.DisplayName, TimeZoneInfo.Local.StandardName,
+            TimeZoneInfo.Local.DaylightName, TimeZoneInfo.Local.BaseUtcOffset,
+            TimeZoneInfo.Local.SupportsDaylightSavingTime, TimeZoneInfo.Local.IsDaylightSavingTime(DateTime.Now));
+    }
+
+    public static void CheckSystem() {
         
         Log.Information(
             "[{LogTag}] OS Version: {OSVersion} ", LogTag, Environment.OSVersion);
