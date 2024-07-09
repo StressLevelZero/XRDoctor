@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,26 +16,25 @@
         <PackageLicenseUrl>https://github.com/StressLevelZero/XRDoctor/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/StressLevelZero/XRDoctor.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageVersion>0.0.6</PackageVersion>
-        <AssemblyVersion>0.0.6</AssemblyVersion>
-        <PackageTags>v0.0.6</PackageTags>
-        <FileVersion>0.0.6</FileVersion>
+        <PackageVersion>0.0.7</PackageVersion>
+        <AssemblyVersion>0.0.7</AssemblyVersion>
+        <PackageTags>v0.0.7</PackageTags>
+        <FileVersion>0.0.7</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Figgle" Version="0.4.0" />
+      <PackageReference Include="Figgle" Version="0.5.1" />
       <PackageReference Include="Gameloop.Vdf.JsonConverter" Version="0.2.1" />
       <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="OpenXR.Loader" Version="1.0.10.2" />
-      <PackageReference Include="Serilog" Version="2.12.0" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-      <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-      <PackageReference Include="Silk.NET.OpenXR" Version="2.16.0" />
-      <PackageReference Include="Silk.NET.OpenXR.Extensions.KHR" Version="2.16.0" />
-      <PackageReference Include="System.Management" Version="6.0.0" />
+      <PackageReference Include="Serilog" Version="4.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+      <PackageReference Include="Silk.NET.OpenXR" Version="2.21.0" />
+      <PackageReference Include="Silk.NET.OpenXR.Extensions.KHR" Version="2.21.0" />
+      <PackageReference Include="System.Management" Version="8.0.0" />
       <PackageReference Include="VdfConverter" Version="1.0.3" />
-      <PackageReference Include="Vortice.Direct3D11" Version="2.1.32" />
     </ItemGroup>
 
     <ItemGroup>
