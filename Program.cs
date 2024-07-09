@@ -28,6 +28,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 Log.Information("[{LogTag}] Starting log at {UTC} (UTC) {local} (Local)", "XRDoctor", utcNowStr, localNowStr);
+Log.Information("[{LogTag}] Version: {Version}", "XRDoctor", typeof(Program).Assembly.GetName().Version);
 
 OpenXRDiagnostics.FindActiveRuntime(out var XR_RUNTIME_JSON);
 if (!string.IsNullOrWhiteSpace(XR_RUNTIME_JSON)) {
