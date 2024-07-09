@@ -48,10 +48,13 @@ foreach (var (runtimeName, manifest) in runtimes) {
 
 OpenXRDiagnostics.FindImplicitApiLayers(out var implicitLayers);
 
+VulkanDiagnostics.FindImplicitLayers(out var layers);
+
 OculusDiagnostics.CheckDirectly(out var hasOculus);
 SteamVRDiagnostics.CheckDirectly(out var hasSteamVR);
 ViveVRDiagnostics.CheckDirectly(out var hasViveVr);
 WindowsMRDiagnostics.CheckDirectly(out var hasWindowsMR);
+VirtualDesktopDiagnostics.CheckDirectly(out var hasVirtualDesktop);
 
 HardwareDiagnostics.FindHeadsets(out var headsets);
 
@@ -60,7 +63,6 @@ if (XR_RUNTIME_JSON.Contains("Steam", StringComparison.InvariantCultureIgnoreCas
 }
 
 SystemDiagnostics.Check();
-GameDiagnostics.Check();
 
 #region OpenXR
 
@@ -70,19 +72,19 @@ var xr = XR.GetApi();
 unsafe {
     uint count = 0;
     xr.EnumerateApiLayerProperties(count, &count, null);
-    Span<ApiLayerProperties> layers = stackalloc ApiLayerProperties[(int) count];
-    for (var i = 0; i < count; i++) { layers[i] = new ApiLayerProperties(StructureType.ApiLayerProperties); }
+    Span<ApiLayerProperties> apiLayers = stackalloc ApiLayerProperties[(int) count];
+    for (var i = 0; i < count; i++) { apiLayers[i] = new ApiLayerProperties(StructureType.ApiLayerProperties); }
 
-    xr.EnumerateApiLayerProperties(ref count, layers);
+    xr.EnumerateApiLayerProperties(ref count, apiLayers);
 
     IDictionary<string, uint> supportedLayers = new Dictionary<string, uint>();
 
-    foreach (var layer in layers) {
+    foreach (var apiLayer in apiLayers) {
         string name;
-        unsafe { name = Marshal.PtrToStringUTF8((IntPtr) layer.LayerName); }
+        unsafe { name = Marshal.PtrToStringUTF8((IntPtr) apiLayer.LayerName); }
 
-        supportedLayers[name] = layer.LayerVersion;
-        Log.Information("[{LogTag}] API Layer: Name={Name} Version={Version}", "OpenXR", name, layer.LayerVersion);
+        supportedLayers[name] = apiLayer.LayerVersion;
+        Log.Information("[{LogTag}] API Layer: Name={Name} Version={Version}", "OpenXR", name, apiLayer.LayerVersion);
     }
 
     ISet<string> supportedExtensions = new HashSet<string>();
@@ -160,3 +162,5 @@ unsafe {
 }
 
 #endregion
+
+GameDiagnostics.Check();
