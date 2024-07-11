@@ -56,6 +56,7 @@ ViveVRDiagnostics.CheckDirectly(out var hasViveVr);
 WindowsMRDiagnostics.CheckDirectly(out var hasWindowsMR);
 VirtualDesktopDiagnostics.CheckDirectly(out var hasVirtualDesktop);
 
+HardwareDiagnostics.ListHardware();
 HardwareDiagnostics.FindHeadsets(out var headsets);
 
 if (XR_RUNTIME_JSON.Contains("Steam", StringComparison.InvariantCultureIgnoreCase)) {
