@@ -17,9 +17,9 @@
         <RepositoryUrl>https://github.com/StressLevelZero/XRDoctor.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageVersion>0.0.7</PackageVersion>
-        <AssemblyVersion>0.0.8</AssemblyVersion>
+        <AssemblyVersion>0.0.8.1</AssemblyVersion>
         <PackageTags>v0.0.7</PackageTags>
-        <FileVersion>0.0.8</FileVersion>
+        <FileVersion>0.0.8.1</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

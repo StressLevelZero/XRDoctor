@@ -1,4 +1,5 @@
 using System.Management;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace SLZ.XRDoctor;
@@ -101,7 +102,7 @@ public static class HardwareDiagnostics {
         }
         
     }
-    
+
     private static JsonObject Collection2Json(PropertyDataCollection propertyData) {
         var json = new JsonObject();
         foreach (var property in propertyData)
@@ -115,6 +116,15 @@ public static class HardwareDiagnostics {
                 long l => l,
                 float f => f,
                 double d => d,
+                ushort[] usa => Array2JsonArray(usa),
+                short[] sa => Array2JsonArray(sa),
+                uint[] uia => Array2JsonArray(uia),
+                int[] ia => Array2JsonArray(ia),
+                ulong[] ula => Array2JsonArray(ula),
+                long[] la => Array2JsonArray(la),
+                float[] fa => Array2JsonArray(fa),
+                double[] da => Array2JsonArray(da),
+                string[] sa => Array2JsonArray(sa),
                 { } o => o.ToString(),
                 _ => null,
             };
@@ -127,4 +137,13 @@ public static class HardwareDiagnostics {
 
         return json;
     }
+
+    private static JsonArray Array2JsonArray<TType> (TType[] array) {
+        var jsonArray = new JsonArray();
+        foreach (var item in array) {
+            jsonArray.Add(item);
+        }
+        return jsonArray;
+    }
+    
 }
